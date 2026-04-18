@@ -13,7 +13,7 @@ body {
     color: white;
 }
 
-/* COMMON */
+/* OVERLAY */
 .overlay {
     background: rgba(0,0,0,0.8);
     min-height: 100vh;
@@ -36,12 +36,14 @@ body {
     text-align: center;
 }
 
+/* INPUTS */
 input {
     width: 90%;
     padding: 10px;
     margin: 10px;
 }
 
+/* BUTTONS */
 button {
     padding: 10px;
     margin: 5px;
@@ -50,7 +52,7 @@ button {
 }
 
 .login-btn {
-    background: blue;
+    background: #2c7be5;
     color: white;
 }
 
@@ -59,18 +61,23 @@ button {
     color: white;
 }
 
+/* CARDS */
 .card {
     background: rgba(255,255,255,0.12);
     padding: 15px;
     margin: 10px;
     border-radius: 10px;
 }
+
+h1 {
+    text-align: center;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div id="loginBox">
     <div class="box">
         <h2>Admin Login</h2>
@@ -89,8 +96,10 @@ button {
 
 <h1>ADMIN CONSOLE</h1>
 
-<button class="logout-btn" onclick="logout()">Logout</button>
-<button onclick="location.href='dashboard.html'">Back</button>
+<div style="text-align:center;">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <button onclick="location.href='dashboard.html'">Back</button>
+</div>
 
 <div id="list"></div>
 
@@ -98,17 +107,17 @@ button {
 
 <script>
 
-// CHECK SESSION ON LOAD
+// AUTO LOGIN CHECK
 if (sessionStorage.getItem("adminLoggedIn") === "true") {
     showAdmin();
 }
 
-// LOGIN FUNCTION
+// LOGIN FUNCTION (PASSWORD = ANYTHING)
 function login() {
     let id = document.getElementById("id").value.trim();
     let pass = document.getElementById("pass").value.trim();
 
-    if (id === "admin@alliance.edu.in" && pass === "Admin@123") {
+    if (id === "admin@alliance.edu.in" && pass !== "") {
         sessionStorage.setItem("adminLoggedIn", "true");
         showAdmin();
     } else {
@@ -123,7 +132,7 @@ function showAdmin() {
     loadSuggestions();
 }
 
-// LOAD SUGGESTIONS
+// LOAD SUGGESTIONS FROM ACADEMICS
 function loadSuggestions() {
     let data = JSON.parse(localStorage.getItem("suggestions") || "[]");
     let list = document.getElementById("list");
@@ -149,7 +158,7 @@ function loadSuggestions() {
     });
 }
 
-// DELETE
+// DELETE FUNCTION
 function deleteItem(index) {
     let data = JSON.parse(localStorage.getItem("suggestions") || "[]");
     data.splice(index, 1);
