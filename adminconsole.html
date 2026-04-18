@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin Console</title>
+<title>Admin Console - Edit Mode</title>
 
 <style>
 body {
@@ -19,10 +19,6 @@ body {
     padding: 20px;
 }
 
-h2 {
-    text-align: center;
-}
-
 .card {
     background: rgba(255,255,255,0.12);
     padding: 15px;
@@ -30,26 +26,32 @@ h2 {
     border-radius: 10px;
 }
 
+input, textarea {
+    width: 95%;
+    padding: 8px;
+    margin: 5px 0;
+}
+
 button {
     padding: 8px;
     margin-top: 5px;
-    background: red;
+    background: #2c7be5;
     color: white;
     border: none;
     cursor: pointer;
 }
 
-.topbtn {
-    background: #2c7be5;
-    margin: 10px;
+.del {
+    background: red;
 }
+
+h2 { text-align:center; }
 </style>
 </head>
 
 <body>
 
 <script>
-// 🔐 LOGIN CHECK
 if(!sessionStorage.getItem("loggedIn")){
   window.location.href="login.html";
 }
@@ -57,116 +59,158 @@ if(!sessionStorage.getItem("loggedIn")){
 
 <div class="overlay">
 
-<h2>ADMIN CONSOLE</h2>
+<h2>ADMIN CONSOLE (EDIT MODE)</h2>
 
-<div style="text-align:center;">
-<button class="topbtn" onclick="logout()">Logout</button>
-<button class="topbtn" onclick="location.href='dashboard.html'">Dashboard</button>
+<!-- ATTENDANCE -->
+<div class="card">
+<h3>Update Attendance (%)</h3>
+<input type="number" id="attInput" placeholder="Enter Attendance %">
+<button onclick="updateAttendance()">Save</button>
+<p id="attShow"></p>
 </div>
 
-<!-- 📊 SUMMARY SECTION -->
+<!-- SUBJECTS -->
 <div class="card">
-<h3>Academic Data Summary</h3>
-
-<p id="attData"></p>
-<p id="subjectCount"></p>
-<p id="suggestionCount"></p>
+<h3>Manage Subjects</h3>
+<input type="text" id="subInput" placeholder="Add Subject">
+<button onclick="addSubject()">Add</button>
+<ul id="subList"></ul>
 </div>
 
-<!-- 📚 SUBJECTS -->
+<!-- TIMETABLE -->
 <div class="card">
-<h3>Subjects List</h3>
-<ul id="subjectsList"></ul>
-</div>
-
-<!-- 📅 TIMETABLE -->
-<div class="card">
-<h3>Timetable</h3>
+<h3>Add Timetable</h3>
+<input type="text" id="day" placeholder="Day">
+<input type="text" id="sub" placeholder="Subjects">
+<button onclick="addTT()">Add</button>
 <table border="1" width="100%" style="color:white;">
 <tr><th>Day</th><th>Subjects</th></tr>
-<tbody id="timetableTable"></tbody>
+<tbody id="ttable"></tbody>
 </table>
 </div>
 
-<!-- 💬 SUGGESTIONS -->
+<!-- SUGGESTIONS -->
 <div class="card">
 <h3>Student Suggestions</h3>
-<div id="suggestionsBox"></div>
+<div id="suggestions"></div>
+</div>
+
+<div style="text-align:center;">
+<button onclick="logout()">Logout</button>
+<button onclick="location.href='dashboard.html'">Dashboard</button>
 </div>
 
 </div>
 
 <script>
 
-// 📊 ATTENDANCE
-let att = localStorage.getItem("attendance");
-document.getElementById("attData").innerText =
-"Attendance: " + (att ? att + "%" : "No Data");
-
-// 📚 SUBJECTS
-let subs = JSON.parse(localStorage.getItem("subjects")) || [];
-document.getElementById("subjectCount").innerText =
-"Total Subjects: " + subs.length;
-
-let ul = document.getElementById("subjectsList");
-
-if(subs.length){
-    subs.forEach(s=>{
-        let li=document.createElement("li");
-        li.innerText=s;
-        ul.appendChild(li);
-    });
-}else{
-    ul.innerHTML="<li>No Subjects</li>";
+// ================= ATTENDANCE =================
+function updateAttendance(){
+    let val = document.getElementById("attInput").value;
+    localStorage.setItem("attendance", val);
+    loadAttendance();
 }
 
-// 📅 TIMETABLE
-let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-let tbody = document.getElementById("timetableTable");
+function loadAttendance(){
+    let att = localStorage.getItem("attendance");
+    document.getElementById("attShow").innerText =
+    "Current Attendance: " + (att ? att+"%" : "No Data");
+}
+loadAttendance();
 
-if(Object.keys(tt).length){
+// ================= SUBJECTS =================
+function loadSubjects(){
+    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
+    let list = document.getElementById("subList");
+    list.innerHTML = "";
+
+    subs.forEach((s,i)=>{
+        let li = document.createElement("li");
+        li.innerHTML = s + " <button class='del' onclick='delSub("+i+")'>X</button>";
+        list.appendChild(li);
+    });
+}
+
+function addSubject(){
+    let val = document.getElementById("subInput").value;
+    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
+
+    subs.push(val);
+    localStorage.setItem("subjects", JSON.stringify(subs));
+
+    document.getElementById("subInput").value="";
+    loadSubjects();
+}
+
+function delSub(i){
+    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
+    subs.splice(i,1);
+    localStorage.setItem("subjects", JSON.stringify(subs));
+    loadSubjects();
+}
+loadSubjects();
+
+// ================= TIMETABLE =================
+function loadTT(){
+    let tt = JSON.parse(localStorage.getItem("timetable")) || {};
+    let tbody = document.getElementById("ttable");
+    tbody.innerHTML="";
+
     for(let d in tt){
         let tr=document.createElement("tr");
-        tr.innerHTML=`<td>${d}</td><td>${tt[d]}</td>`;
+        tr.innerHTML = `
+        <td>${d}</td>
+        <td>${tt[d]}</td>
+        `;
         tbody.appendChild(tr);
     }
-}else{
-    tbody.innerHTML="<tr><td colspan='2'>No Data</td></tr>";
 }
 
-// 💬 SUGGESTIONS (FROM ACADEMICS)
-let suggestions = JSON.parse(localStorage.getItem("suggestions")) || [];
+function addTT(){
+    let day = document.getElementById("day").value;
+    let sub = document.getElementById("sub").value;
 
-document.getElementById("suggestionCount").innerText =
-"Total Suggestions: " + suggestions.length;
+    let tt = JSON.parse(localStorage.getItem("timetable")) || {};
+    tt[day] = sub;
 
-let box = document.getElementById("suggestionsBox");
+    localStorage.setItem("timetable", JSON.stringify(tt));
 
-if(suggestions.length){
-    suggestions.forEach((s,i)=>{
-        let div = document.createElement("div");
-        div.className = "card";
+    document.getElementById("day").value="";
+    document.getElementById("sub").value="";
 
-        div.innerHTML = `
-            <p><b>${i+1}. </b>${s}</p>
-            <button onclick="deleteSuggestion(${i})">Delete</button>
+    loadTT();
+}
+loadTT();
+
+// ================= SUGGESTIONS =================
+function loadSuggestions(){
+    let data = JSON.parse(localStorage.getItem("suggestions")) || [];
+    let box = document.getElementById("suggestions");
+
+    box.innerHTML="";
+
+    data.forEach((s,i)=>{
+        let div=document.createElement("div");
+        div.className="card";
+
+        div.innerHTML=`
+        <p>${s}</p>
+        <button class='del' onclick='delSug(${i})'>Delete</button>
         `;
 
         box.appendChild(div);
     });
-}else{
-    box.innerHTML="<p>No Suggestions</p>";
 }
 
-// ❌ DELETE SUGGESTION
-function deleteSuggestion(i){
+function delSug(i){
     let data = JSON.parse(localStorage.getItem("suggestions")) || [];
     data.splice(i,1);
     localStorage.setItem("suggestions", JSON.stringify(data));
-    location.reload();
+    loadSuggestions();
 }
+loadSuggestions();
 
-// 🚪 LOGOUT
+// ================= LOGOUT =================
 function logout(){
     sessionStorage.removeItem("loggedIn");
     window.location.href="login.html";
