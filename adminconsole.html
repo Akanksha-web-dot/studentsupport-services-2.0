@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Academics - Live</title>
+<title>Admin Console</title>
 
 <style>
 body{
@@ -13,86 +13,123 @@ body{
     color:white;
 }
 
+.box{
+    width:300px;
+    margin:120px auto;
+    background:white;
+    color:black;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+}
+
+input{
+    width:90%;
+    padding:10px;
+    margin:8px 0;
+}
+
+button{
+    padding:10px;
+    width:95%;
+    background:#2c7be5;
+    color:white;
+    border:none;
+}
+
 .overlay{
     background:rgba(0,0,0,0.85);
     min-height:100vh;
     padding:20px;
 }
-
-.card{
-    background:rgba(255,255,255,0.12);
-    padding:15px;
-    margin:10px;
-    border-radius:10px;
-}
-
-h2{text-align:center;}
 </style>
 </head>
 
 <body>
 
-<div class="overlay">
+<!-- LOGIN SCREEN -->
+<div id="loginBox" class="box">
+<h2>Admin Login</h2>
 
-<h2>ACADEMICS (LIVE DATA FROM ADMIN)</h2>
+<input type="text" id="id" placeholder="Admin ID">
+<input type="password" id="pass" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<p id="err" style="color:red;"></p>
+</div>
+
+<!-- PANEL -->
+<div id="panel" class="overlay" style="display:none;">
+
+<h2>ADMIN PANEL</h2>
 
 <div class="card">
 <h3>Attendance</h3>
-<p id="att">Loading...</p>
+<input type="number" id="att">
+<button onclick="saveAtt()">Save</button>
 </div>
 
 <div class="card">
 <h3>Subjects</h3>
-<ul id="subs"></ul>
+<input type="text" id="sub">
+<button onclick="addSub()">Add</button>
 </div>
 
 <div class="card">
 <h3>Timetable</h3>
-<table border="1" width="100%" style="color:white;">
-<tr><th>Day</th><th>Subject</th></tr>
-<tbody id="tt"></tbody>
-</table>
+<input type="text" id="day">
+<input type="text" id="t">
+<button onclick="addTT()">Add</button>
 </div>
 
 <div class="card">
-<h3>Latest Updates</h3>
-<div id="sug"></div>
+<button onclick="goBack()">Back to Academics</button>
 </div>
 
 </div>
 
 <script>
 
-function loadData(){
+/// ALWAYS FRESH LOGIN (NO SESSION STORAGE)
+function login(){
+    let id=document.getElementById("id").value;
+    let pass=document.getElementById("pass").value;
 
-    // Attendance
-    document.getElementById("att").innerText =
-    localStorage.getItem("attendance") || "No Data";
-
-    // Subjects
-    let s = JSON.parse(localStorage.getItem("subjects")) || [];
-    document.getElementById("subs").innerHTML =
-    s.map(x=>`<li>${x}</li>`).join("");
-
-    // Timetable
-    let t = JSON.parse(localStorage.getItem("timetable")) || {};
-    let body = document.getElementById("tt");
-    body.innerHTML="";
-
-    for(let k in t){
-        body.innerHTML += `<tr><td>${k}</td><td>${t[k]}</td></tr>`;
+    if(id==="admin@alliance.edu.in" && pass!==""){
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("panel").style.display="block";
+    } else {
+        document.getElementById("err").innerText="Invalid Login";
     }
-
-    // Suggestions
-    let sug = JSON.parse(localStorage.getItem("suggestions")) || [];
-    document.getElementById("sug").innerHTML =
-    sug.map(x=>`<div class="card">${x}</div>`).join("");
 }
 
-// 🔄 LIVE REFRESH (auto update from admin)
-setInterval(loadData, 2000);
+/// DATA SHARED WITH ACADEMICS
+function saveAtt(){
+    localStorage.setItem("attendance",document.getElementById("att").value);
+}
 
-loadData();
+function addSub(){
+    let s=document.getElementById("sub").value;
+    let arr=JSON.parse(localStorage.getItem("subjects"))||[];
+    arr.push(s);
+    localStorage.setItem("subjects",JSON.stringify(arr));
+}
+
+function addTT(){
+    let d=document.getElementById("day").value;
+    let t=document.getElementById("t").value;
+
+    let tt=JSON.parse(localStorage.getItem("timetable"))||{};
+    tt[d]=t;
+
+    localStorage.setItem("timetable",JSON.stringify(tt));
+}
+
+/// 🔥 BACK → ALWAYS RELOADS LOGIN NEXT TIME
+function goBack(){
+    window.location.href="academics.html";
+}
 
 </script>
 
