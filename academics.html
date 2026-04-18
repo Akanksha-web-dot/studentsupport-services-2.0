@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Academics (Live Data)</title>
+<title>Academics</title>
 
 <style>
 body{
@@ -26,7 +26,10 @@ body{
     border-radius:10px;
 }
 
-h2{text-align:center;}
+textarea{
+    width:95%;
+    padding:8px;
+}
 </style>
 </head>
 
@@ -34,70 +37,47 @@ h2{text-align:center;}
 
 <div class="overlay">
 
-<h2>ACADEMICS (LIVE FROM ADMIN)</h2>
+<h2>ACADEMICS</h2>
 
-<!-- ATTENDANCE -->
+<!-- NOTICES -->
 <div class="card">
-<h3>Attendance</h3>
-<p id="att">Loading...</p>
+<h3>Notices</h3>
+<div id="notices"></div>
 </div>
 
-<!-- SUBJECTS -->
+<!-- SUGGESTION BOX -->
 <div class="card">
-<h3>Subjects</h3>
-<ul id="subjects"></ul>
-</div>
-
-<!-- TIMETABLE -->
-<div class="card">
-<h3>Timetable</h3>
-<table border="1" width="100%" style="color:white;">
-<tr><th>Day</th><th>Subject</th></tr>
-<tbody id="ttable"></tbody>
-</table>
-</div>
-
-<!-- SUGGESTIONS (optional view only) -->
-<div class="card">
-<h3>Latest Updates</h3>
-<div id="updates"></div>
+<h3>Send Suggestion</h3>
+<textarea id="sug"></textarea>
+<button onclick="sendSug()">Submit</button>
 </div>
 
 </div>
 
 <script>
 
-// ================= AUTO REFRESH FUNCTION =================
-function loadData(){
-
-    // ATTENDANCE
-    document.getElementById("att").innerText =
-    localStorage.getItem("attendance") || "No Data";
-
-    // SUBJECTS
-    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
-    document.getElementById("subjects").innerHTML =
-    subs.map(s=>`<li>${s}</li>`).join("");
-
-    // TIMETABLE
-    let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-    let body = document.getElementById("ttable");
-
-    body.innerHTML="";
-    for(let d in tt){
-        body.innerHTML += `<tr><td>${d}</td><td>${tt[d]}</td></tr>`;
-    }
-
-    // SUGGESTIONS (VIEW ONLY)
-    let sug = JSON.parse(localStorage.getItem("suggestions")) || [];
-    document.getElementById("updates").innerHTML =
-    sug.map(x=>`<div class="card">${x}</div>`).join("");
+/// LOAD NOTICES FROM ADMIN
+function loadNotices(){
+    let n=JSON.parse(localStorage.getItem("notices"))||[];
+    document.getElementById("notices").innerHTML =
+    n.length ? n.map(x=>`<div class="card">${x}</div>`).join("")
+             : "<p>No notices</p>";
 }
 
-// 🔄 AUTO REFRESH EVERY 2 SECONDS (LIVE UPDATE)
-setInterval(loadData, 2000);
+/// SEND SUGGESTION TO ADMIN
+function sendSug(){
+    let s=document.getElementById("sug").value;
 
-loadData();
+    let arr=JSON.parse(localStorage.getItem("suggestions"))||[];
+    arr.push(s);
+
+    localStorage.setItem("suggestions",JSON.stringify(arr));
+
+    document.getElementById("sug").value="";
+}
+
+setInterval(loadNotices,2000);
+loadNotices();
 
 </script>
 
