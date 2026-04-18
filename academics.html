@@ -5,33 +5,41 @@
 
   <style>
     body {
+      margin: 0;
       font-family: Arial;
-      background: #f5f5f5;
-      margin: 20px;
+      background: url("ADMIN BLOCK (1).webp") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
     }
 
-    h2 {
-      text-align: center;
+    .overlay {
+      background: rgba(0,0,0,0.78);
+      min-height: 100vh;
+      padding: 20px;
     }
+
+    h2 { text-align: center; }
 
     .academics {
       display: flex;
       gap: 20px;
       justify-content: center;
       margin-top: 30px;
+      flex-wrap: wrap;
     }
 
     .card {
-      background: white;
+      background: rgba(255,255,255,0.15);
       padding: 20px;
       width: 30%;
-      border-radius: 10px;
-      box-shadow: 2px 2px 10px #ccc;
+      border-radius: 12px;
+      box-shadow: 2px 2px 10px #000;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      color: white;
     }
 
     th, td {
@@ -41,91 +49,117 @@
 
     th {
       background: #007bff;
-      color: white;
     }
 
     tr:nth-child(even) {
-      background: #f2f2f2;
+      background: rgba(255,255,255,0.1);
     }
+
+    .center { text-align: center; }
   </style>
 
 </head>
 <body>
 
+<div class="overlay">
+
 <h2>Academics Module</h2>
 
 <div class="academics">
 
-  <!-- SUBJECTS -->
   <div class="card">
     <h3>Subjects</h3>
     <ul id="subjectsList"></ul>
   </div>
 
-  <!-- ATTENDANCE -->
   <div class="card">
     <h3>Attendance</h3>
-    <h1 id="attendance" style="text-align:center;"></h1>
+    <h1 id="attendance" class="center"></h1>
   </div>
 
-  <!-- TIMETABLE -->
   <div class="card">
     <h3>Timetable</h3>
-    <table border="1" id="timetableTable">
-      <tr>
-        <th>Day</th>
-        <th>Subjects</th>
-      </tr>
+    <table id="timetableTable">
+      <tr><th>Day</th><th>Subjects</th></tr>
     </table>
   </div>
 
 </div>
 
+<!-- 💬 SUGGESTION BOX -->
+<div class="card center" style="width:50%; margin:30px auto;">
+  <h3>Suggestion Box</h3>
+  <textarea id="suggestionText" placeholder="Enter your suggestion..." style="width:90%; height:80px;"></textarea><br><br>
+  <button onclick="submitSuggestion()">Submit</button>
+</div>
+
+<div class="center">
+  <button onclick="goBack()">Back to Dashboard</button>
+</div>
+
+</div>
+
 <script>
-// ===== SUBJECTS =====
-let subjects = JSON.parse(localStorage.getItem("subjects")) || [];
+// 🔐 LOGIN CHECK
+if(!sessionStorage.getItem("loggedIn")){
+  window.location.href="login.html";
+}
+
+// SUBJECTS
+let subs = JSON.parse(localStorage.getItem("subjects")) || [];
 let ul = document.getElementById("subjectsList");
 
-if(subjects.length > 0){
-  subjects.forEach(sub => {
-    let li = document.createElement("li");
-    li.innerText = sub;
+if(subs.length){
+  subs.forEach(s=>{
+    let li=document.createElement("li");
+    li.innerText=s;
     ul.appendChild(li);
   });
 }else{
-  ul.innerHTML = "<li>No Subjects Available</li>";
+  ul.innerHTML="<li>No Subjects Available</li>";
 }
 
-// ===== ATTENDANCE =====
-let attendance = localStorage.getItem("attendance");
-document.getElementById("attendance").innerText =
-  attendance ? attendance + "%" : "No Data";
+// ATTENDANCE
+let att = localStorage.getItem("attendance");
+document.getElementById("attendance").innerText = att ? att+"%" : "No Data";
 
-// ===== TIMETABLE =====
-let timetable = JSON.parse(localStorage.getItem("timetable")) || {};
+// TIMETABLE
+let tt = JSON.parse(localStorage.getItem("timetable")) || {};
 let table = document.getElementById("timetableTable");
 
-if(Object.keys(timetable).length > 0){
-  for(let day in timetable){
-    let tr = document.createElement("tr");
-
-    let td1 = document.createElement("td");
-    td1.innerText = day;
-
-    let td2 = document.createElement("td");
-    td2.innerText = timetable[day];
-
-    tr.appendChild(td1);
-    tr.appendChild(td2);
+if(Object.keys(tt).length){
+  for(let d in tt){
+    let tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d}</td><td>${tt[d]}</td>`;
     table.appendChild(tr);
   }
 }else{
-  let tr = document.createElement("tr");
-  let td = document.createElement("td");
-  td.colSpan = 2;
-  td.innerText = "No Timetable Available";
-  tr.appendChild(td);
+  let tr=document.createElement("tr");
+  tr.innerHTML="<td colspan='2'>No Timetable Available</td>";
   table.appendChild(tr);
+}
+
+// 💬 SUBMIT SUGGESTION
+function submitSuggestion(){
+  let text = document.getElementById("suggestionText").value;
+
+  if(text.trim()===""){
+    alert("Enter something");
+    return;
+  }
+
+  let arr = JSON.parse(localStorage.getItem("suggestions")) || [];
+  arr.push(text);
+
+  localStorage.setItem("suggestions", JSON.stringify(arr));
+
+  alert("Suggestion Submitted");
+  document.getElementById("suggestionText").value="";
+}
+
+// BACK
+function goBack(){
+  window.location.href="dashboard.html";
 }
 </script>
 
