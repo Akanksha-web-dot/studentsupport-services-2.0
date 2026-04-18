@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Admin Console</title>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
 
 <style>
 body {
@@ -12,156 +13,154 @@ body {
     color: white;
 }
 
+/* COMMON */
 .overlay {
-    background: rgba(0,0,0,0.78);
+    background: rgba(0,0,0,0.8);
     min-height: 100vh;
     padding: 20px;
 }
 
+/* LOGIN BOX */
+#loginBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
 .box {
-    background: rgba(255,255,255,0.15);
-    padding: 20px;
-    margin: 20px auto;
-    width: 50%;
-    border-radius: 12px;
+    background: white;
+    color: black;
+    padding: 30px;
+    border-radius: 10px;
     text-align: center;
 }
 
-h2 { text-align: center; }
-</style>
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px;
+}
 
+button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.login-btn {
+    background: blue;
+    color: white;
+}
+
+.logout-btn {
+    background: red;
+    color: white;
+}
+
+.card {
+    background: rgba(255,255,255,0.12);
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+}
+</style>
 </head>
 
 <body>
 
-<div class="overlay">
-
-<!-- 🔐 LOGIN BOX -->
+<!-- LOGIN -->
 <div id="loginBox">
-  <h2>Admin Login</h2>
-  <input id="user" placeholder="Username"><br><br>
-  <input id="pass" type="password" placeholder="Password"><br><br>
-  <button onclick="login()">Login</button>
+    <div class="box">
+        <h2>Admin Login</h2>
+
+        <input type="text" id="id" placeholder="Admin ID">
+        <input type="password" id="pass" placeholder="Password">
+
+        <button class="login-btn" onclick="login()">Login</button>
+
+        <p id="error" style="color:red;"></p>
+    </div>
 </div>
 
-<!-- 🧑‍💼 ADMIN PANEL -->
-<div id="adminPanel" style="display:none;">
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="overlay" style="display:none;">
 
-<h2>Admin Console</h2>
+<h1>ADMIN CONSOLE</h1>
 
-<div class="box">
-  <h3>Subjects</h3>
-  <input id="subjects"><br>
-  <button onclick="saveSubjects()">Save</button>
-</div>
+<button class="logout-btn" onclick="logout()">Logout</button>
+<button onclick="location.href='dashboard.html'">Back</button>
 
-<div class="box">
-  <h3>Attendance</h3>
-  <input id="attendance"><br>
-  <button onclick="saveAttendance()">Save</button>
-</div>
-
-<div class="box">
-  <h3>Timetable</h3>
-  <select id="day">
-    <option>Monday</option>
-    <option>Tuesday</option>
-    <option>Wednesday</option>
-  </select>
-  <input id="daySub"><br>
-  <button onclick="saveTT()">Save</button>
-</div>
-
-<div class="box">
-  <h3>Notice</h3>
-  <textarea id="notice"></textarea><br>
-  <button onclick="saveNotice()">Post</button>
-</div>
-
-<div class="box">
-  <h3>Student Suggestions</h3>
-  <ul id="list"></ul>
-</div>
-
-<center>
-<button onclick="goBack()">Back</button>
-<button onclick="logout()">Logout</button>
-</center>
-
-</div>
+<div id="list"></div>
 
 </div>
 
 <script>
 
-// ✅ AUTO LOGIN CHECK
-if(sessionStorage.getItem("role") === "admin"){
-  showAdmin();
+// CHECK SESSION ON LOAD
+if (sessionStorage.getItem("adminLoggedIn") === "true") {
+    showAdmin();
 }
 
-// 🔐 LOGIN FUNCTION
-function login(){
-  let u = user.value;
-  let p = pass.value;
+// LOGIN FUNCTION
+function login() {
+    let id = document.getElementById("id").value.trim();
+    let pass = document.getElementById("pass").value.trim();
 
-  if(u==="admin" && p==="admin123"){
-    sessionStorage.setItem("role","admin");
-    sessionStorage.setItem("loggedIn","true");
-    showAdmin();
-  } else {
-    alert("Invalid Login");
-  }
+    if (id === "admin@alliance.edu.in" && pass === "Admin@123") {
+        sessionStorage.setItem("adminLoggedIn", "true");
+        showAdmin();
+    } else {
+        document.getElementById("error").innerText = "Invalid credentials";
+    }
 }
 
 // SHOW ADMIN PANEL
-function showAdmin(){
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("adminPanel").style.display = "block";
-  loadSuggestions();
-}
-
-// 🔓 LOGOUT
-function logout(){
-  sessionStorage.clear();
-  location.reload(); // 🔥 IMPORTANT FIX
-}
-
-// SAVE FUNCTIONS
-function saveSubjects(){
-  localStorage.setItem("subjects", JSON.stringify(subjects.value.split(",")));
-}
-function saveAttendance(){
-  localStorage.setItem("attendance", attendance.value);
-}
-function saveTT(){
-  let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-  tt[day.value] = daySub.value;
-  localStorage.setItem("timetable", JSON.stringify(tt));
-}
-function saveNotice(){
-  localStorage.setItem("notice", notice.value);
+function showAdmin() {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    loadSuggestions();
 }
 
 // LOAD SUGGESTIONS
-function loadSuggestions(){
-  let arr = JSON.parse(localStorage.getItem("suggestions")) || [];
-  let ul = document.getElementById("list");
-  ul.innerHTML = "";
+function loadSuggestions() {
+    let data = JSON.parse(localStorage.getItem("suggestions") || "[]");
+    let list = document.getElementById("list");
 
-  if(arr.length === 0){
-    ul.innerHTML = "<li>No Suggestions</li>";
-  } else {
-    arr.forEach(s=>{
-      let li=document.createElement("li");
-      li.innerText=s;
-      ul.appendChild(li);
+    list.innerHTML = "";
+
+    if (data.length === 0) {
+        list.innerHTML = "<div class='card'>No suggestions yet</div>";
+        return;
+    }
+
+    data.forEach((item, index) => {
+        let div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            <p><b>Suggestion ${index + 1}</b></p>
+            <p>${item}</p>
+            <button onclick="deleteItem(${index})">Delete</button>
+        `;
+
+        list.appendChild(div);
     });
-  }
 }
 
-// NAVIGATION
-function goBack(){
-  window.location.href="dashboard.html";
+// DELETE
+function deleteItem(index) {
+    let data = JSON.parse(localStorage.getItem("suggestions") || "[]");
+    data.splice(index, 1);
+    localStorage.setItem("suggestions", JSON.stringify(data));
+    loadSuggestions();
+}
+
+// LOGOUT
+function logout() {
+    sessionStorage.removeItem("adminLoggedIn");
+    location.reload();
 }
 
 </script>
