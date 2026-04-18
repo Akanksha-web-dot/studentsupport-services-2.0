@@ -89,7 +89,7 @@ footer {
         <p>Mental & Physical Health</p>
     </div>
 
-    <!-- ACADEMICS (UPDATED LINK) -->
+    <!-- ACADEMICS -->
     <div class="card" onclick="goPage('academics.html')">
         <h3>ACADEMICS</h3>
         <p>Attendance, Subjects & Timetable</p>
@@ -107,17 +107,17 @@ footer {
         <p>Helpline Contacts</p>
     </div>
 
-    <!-- ADMIN CONSOLE (UPDATED LINK) -->
-    <div class="card" onclick="goPage('admin.html')">
+    <!-- ADMIN CONSOLE (CORRECTED) -->
+    <div class="card" onclick="goPage('adminconsole.html')">
         <h3>ADMIN CONSOLE</h3>
         <p>Manage Academics & Notices</p>
     </div>
 
 </div>
 
-<!-- 🔔 NOTICE PREVIEW (NEW FEATURE) -->
+<!-- 📢 NOTICE PREVIEW -->
 <div style="margin-top:30px; text-align:center;">
-    <h3>📢 Latest Notice</h3>
+    <h3>Latest Notice</h3>
     <p id="noticeBox">No notices available</p>
 </div>
 
@@ -129,12 +129,12 @@ ALLIANCE UNIVERSITY
 
 <script>
 
-// 🔐 LOGIN PROTECTION (UPDATED)
+// 🔐 LOGIN PROTECTION
 if (!sessionStorage.getItem("loggedIn")) {
     window.location.href = "login.html";
 }
 
-// 🔗 NAVIGATION FUNCTION
+// 🔗 PAGE NAVIGATION
 function goPage(page){
     window.location.href = page;
 }
@@ -145,7 +145,7 @@ function logout(){
     window.location.href = "login.html";
 }
 
-// 📢 LOAD NOTICE (LINKED WITH ADMIN)
+// 📢 LOAD NOTICE FROM ADMIN
 let notice = localStorage.getItem("notice");
 if(notice){
     document.getElementById("noticeBox").innerText = notice;
