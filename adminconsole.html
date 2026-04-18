@@ -2,232 +2,97 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin Console - Edit Mode</title>
+<title>Academics - Live</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: url("ADMIN BLOCK (1).webp") no-repeat center center fixed;
-    background-size: cover;
-    color: white;
+body{
+    margin:0;
+    font-family:Arial;
+    background:url("ADMIN BLOCK (1).webp") no-repeat center center fixed;
+    background-size:cover;
+    color:white;
 }
 
-.overlay {
-    background: rgba(0,0,0,0.85);
-    min-height: 100vh;
-    padding: 20px;
+.overlay{
+    background:rgba(0,0,0,0.85);
+    min-height:100vh;
+    padding:20px;
 }
 
-.card {
-    background: rgba(255,255,255,0.12);
-    padding: 15px;
-    margin: 10px;
-    border-radius: 10px;
+.card{
+    background:rgba(255,255,255,0.12);
+    padding:15px;
+    margin:10px;
+    border-radius:10px;
 }
 
-input {
-    width: 95%;
-    padding: 8px;
-    margin: 5px 0;
-}
-
-button {
-    padding: 8px;
-    margin-top: 5px;
-    background: #2c7be5;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.del {
-    background: red;
-}
-
-h2 { text-align:center; }
+h2{text-align:center;}
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 SAFE LOGIN CHECK -->
-<script>
-(function(){
-    if(sessionStorage.getItem("loggedIn") !== "true"){
-        window.location.href = "./login.html";
-    }
-})();
-</script>
-
 <div class="overlay">
 
-<h2>ADMIN CONSOLE (EDIT MODE)</h2>
+<h2>ACADEMICS (LIVE DATA FROM ADMIN)</h2>
 
-<!-- ATTENDANCE -->
 <div class="card">
-<h3>Update Attendance (%)</h3>
-<input type="number" id="attInput" placeholder="Enter Attendance %">
-<button onclick="updateAttendance()">Save</button>
-<p id="attShow"></p>
+<h3>Attendance</h3>
+<p id="att">Loading...</p>
 </div>
 
-<!-- SUBJECTS -->
 <div class="card">
-<h3>Manage Subjects</h3>
-<input type="text" id="subInput" placeholder="Add Subject">
-<button onclick="addSubject()">Add</button>
-<ul id="subList"></ul>
+<h3>Subjects</h3>
+<ul id="subs"></ul>
 </div>
 
-<!-- TIMETABLE -->
 <div class="card">
-<h3>Add Timetable</h3>
-<input type="text" id="day" placeholder="Day">
-<input type="text" id="sub" placeholder="Subjects">
-<button onclick="addTT()">Add</button>
-
+<h3>Timetable</h3>
 <table border="1" width="100%" style="color:white;">
-<tr><th>Day</th><th>Subjects</th></tr>
-<tbody id="ttable"></tbody>
+<tr><th>Day</th><th>Subject</th></tr>
+<tbody id="tt"></tbody>
 </table>
 </div>
 
-<!-- SUGGESTIONS -->
 <div class="card">
-<h3>Student Suggestions</h3>
-<div id="suggestions"></div>
-</div>
-
-<!-- ACTION BUTTONS -->
-<div style="text-align:center;">
-<button onclick="logout()">Logout</button>
-<button onclick="location.href='./dashboard.html'">Dashboard</button>
+<h3>Latest Updates</h3>
+<div id="sug"></div>
 </div>
 
 </div>
 
 <script>
 
-/// ================= ATTENDANCE =================
-function updateAttendance(){
-    let val = document.getElementById("attInput").value;
-    localStorage.setItem("attendance", val);
-    loadAttendance();
-}
+function loadData(){
 
-function loadAttendance(){
-    let att = localStorage.getItem("attendance");
-    document.getElementById("attShow").innerText =
-    "Current Attendance: " + (att ? att + "%" : "No Data");
-}
-loadAttendance();
+    // Attendance
+    document.getElementById("att").innerText =
+    localStorage.getItem("attendance") || "No Data";
 
-/// ================= SUBJECTS =================
-function loadSubjects(){
-    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
-    let list = document.getElementById("subList");
-    list.innerHTML = "";
+    // Subjects
+    let s = JSON.parse(localStorage.getItem("subjects")) || [];
+    document.getElementById("subs").innerHTML =
+    s.map(x=>`<li>${x}</li>`).join("");
 
-    subs.forEach((s,i)=>{
-        let li = document.createElement("li");
-        li.innerHTML = s + " <button class='del' onclick='delSub("+i+")'>X</button>";
-        list.appendChild(li);
-    });
-}
+    // Timetable
+    let t = JSON.parse(localStorage.getItem("timetable")) || {};
+    let body = document.getElementById("tt");
+    body.innerHTML="";
 
-function addSubject(){
-    let val = document.getElementById("subInput").value;
-    if(val.trim()==="") return;
-
-    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
-    subs.push(val);
-
-    localStorage.setItem("subjects", JSON.stringify(subs));
-
-    document.getElementById("subInput").value="";
-    loadSubjects();
-}
-
-function delSub(i){
-    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
-    subs.splice(i,1);
-    localStorage.setItem("subjects", JSON.stringify(subs));
-    loadSubjects();
-}
-loadSubjects();
-
-/// ================= TIMETABLE =================
-function loadTT(){
-    let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-    let tbody = document.getElementById("ttable");
-    tbody.innerHTML="";
-
-    for(let d in tt){
-        let tr=document.createElement("tr");
-        tr.innerHTML = `<td>${d}</td><td>${tt[d]}</td>`;
-        tbody.appendChild(tr);
-    }
-}
-
-function addTT(){
-    let day = document.getElementById("day").value;
-    let sub = document.getElementById("sub").value;
-
-    if(day.trim()==="" || sub.trim()==="") return;
-
-    let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-    tt[day] = sub;
-
-    localStorage.setItem("timetable", JSON.stringify(tt));
-
-    document.getElementById("day").value="";
-    document.getElementById("sub").value="";
-
-    loadTT();
-}
-loadTT();
-
-/// ================= SUGGESTIONS =================
-function loadSuggestions(){
-    let data = JSON.parse(localStorage.getItem("suggestions")) || [];
-    let box = document.getElementById("suggestions");
-
-    box.innerHTML="";
-
-    if(data.length===0){
-        box.innerHTML="<p>No suggestions</p>";
-        return;
+    for(let k in t){
+        body.innerHTML += `<tr><td>${k}</td><td>${t[k]}</td></tr>`;
     }
 
-    data.forEach((s,i)=>{
-        let div=document.createElement("div");
-        div.className="card";
-
-        div.innerHTML=`
-        <p>${s}</p>
-        <button class='del' onclick='delSug(${i})'>Delete</button>
-        `;
-
-        box.appendChild(div);
-    });
+    // Suggestions
+    let sug = JSON.parse(localStorage.getItem("suggestions")) || [];
+    document.getElementById("sug").innerHTML =
+    sug.map(x=>`<div class="card">${x}</div>`).join("");
 }
 
-function delSug(i){
-    let data = JSON.parse(localStorage.getItem("suggestions")) || [];
-    data.splice(i,1);
-    localStorage.setItem("suggestions", JSON.stringify(data));
-    loadSuggestions();
-}
-loadSuggestions();
+// 🔄 LIVE REFRESH (auto update from admin)
+setInterval(loadData, 2000);
 
-/// ================= LOGOUT (FIXED - NO 404) =================
-function logout(){
-    sessionStorage.removeItem("loggedIn");
-
-    // ALWAYS SAFE REDIRECT
-    window.location.href = "./login.html";
-}
+loadData();
 
 </script>
 
