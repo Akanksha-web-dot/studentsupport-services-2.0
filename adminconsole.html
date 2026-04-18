@@ -14,8 +14,8 @@ body{
 }
 
 .box{
-    width:300px;
-    margin:120px auto;
+    width:320px;
+    margin:100px auto;
     background:white;
     color:black;
     padding:20px;
@@ -23,31 +23,38 @@ body{
     text-align:center;
 }
 
-input{
-    width:90%;
-    padding:10px;
-    margin:8px 0;
-}
-
-button{
-    padding:10px;
-    width:95%;
-    background:#2c7be5;
-    color:white;
-    border:none;
-}
-
 .overlay{
     background:rgba(0,0,0,0.85);
     min-height:100vh;
     padding:20px;
+}
+
+.card{
+    background:rgba(255,255,255,0.12);
+    padding:15px;
+    margin:10px;
+    border-radius:10px;
+}
+
+input, textarea{
+    width:95%;
+    padding:8px;
+    margin:5px 0;
+}
+
+button{
+    padding:8px;
+    background:#2c7be5;
+    color:white;
+    border:none;
+    cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginBox" class="box">
 <h2>Admin Login</h2>
 
@@ -62,20 +69,23 @@ button{
 <!-- PANEL -->
 <div id="panel" class="overlay" style="display:none;">
 
-<h2>ADMIN PANEL</h2>
+<h2>ADMIN CONSOLE</h2>
 
+<!-- ATTENDANCE -->
 <div class="card">
 <h3>Attendance</h3>
 <input type="number" id="att">
 <button onclick="saveAtt()">Save</button>
 </div>
 
+<!-- SUBJECTS -->
 <div class="card">
 <h3>Subjects</h3>
 <input type="text" id="sub">
 <button onclick="addSub()">Add</button>
 </div>
 
+<!-- TIMETABLE -->
 <div class="card">
 <h3>Timetable</h3>
 <input type="text" id="day">
@@ -83,15 +93,24 @@ button{
 <button onclick="addTT()">Add</button>
 </div>
 
+<!-- 🆕 NOTICE BOARD -->
 <div class="card">
-<button onclick="goBack()">Back to Academics</button>
+<h3>Post Notice</h3>
+<textarea id="noticeText" placeholder="Write notice..."></textarea>
+<button onclick="addNotice()">Publish</button>
+</div>
+
+<!-- 🆕 VIEW SUGGESTIONS -->
+<div class="card">
+<h3>Student Suggestions</h3>
+<div id="sugBox"></div>
 </div>
 
 </div>
 
 <script>
 
-/// ALWAYS FRESH LOGIN (NO SESSION STORAGE)
+/// LOGIN
 function login(){
     let id=document.getElementById("id").value;
     let pass=document.getElementById("pass").value;
@@ -99,16 +118,18 @@ function login(){
     if(id==="admin@alliance.edu.in" && pass!==""){
         document.getElementById("loginBox").style.display="none";
         document.getElementById("panel").style.display="block";
+        loadSuggestions();
     } else {
         document.getElementById("err").innerText="Invalid Login";
     }
 }
 
-/// DATA SHARED WITH ACADEMICS
+/// ATTENDANCE
 function saveAtt(){
     localStorage.setItem("attendance",document.getElementById("att").value);
 }
 
+/// SUBJECTS
 function addSub(){
     let s=document.getElementById("sub").value;
     let arr=JSON.parse(localStorage.getItem("subjects"))||[];
@@ -116,6 +137,7 @@ function addSub(){
     localStorage.setItem("subjects",JSON.stringify(arr));
 }
 
+/// TIMETABLE
 function addTT(){
     let d=document.getElementById("day").value;
     let t=document.getElementById("t").value;
@@ -126,9 +148,24 @@ function addTT(){
     localStorage.setItem("timetable",JSON.stringify(tt));
 }
 
-/// 🔥 BACK → ALWAYS RELOADS LOGIN NEXT TIME
-function goBack(){
-    window.location.href="academics.html";
+/// 🆕 NOTICE SYSTEM
+function addNotice(){
+    let n=document.getElementById("noticeText").value;
+
+    let arr=JSON.parse(localStorage.getItem("notices"))||[];
+    arr.push(n);
+
+    localStorage.setItem("notices",JSON.stringify(arr));
+
+    document.getElementById("noticeText").value="";
+}
+
+/// 🆕 SUGGESTIONS VIEW
+function loadSuggestions(){
+    let s=JSON.parse(localStorage.getItem("suggestions"))||[];
+    document.getElementById("sugBox").innerHTML =
+    s.length ? s.map(x=>`<div class="card">${x}</div>`).join("")
+             : "<p>No suggestions</p>";
 }
 
 </script>
