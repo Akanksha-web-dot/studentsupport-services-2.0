@@ -51,11 +51,11 @@ h2 { text-align:center; }
 
 <body>
 
-<!-- ✅ SAFE LOGIN CHECK -->
+<!-- 🔐 SAFE LOGIN CHECK -->
 <script>
 (function(){
     if(sessionStorage.getItem("loggedIn") !== "true"){
-        window.location.href = "login.html";
+        window.location.href = "./login.html";
     }
 })();
 </script>
@@ -102,7 +102,7 @@ h2 { text-align:center; }
 <!-- ACTION BUTTONS -->
 <div style="text-align:center;">
 <button onclick="logout()">Logout</button>
-<button onclick="location.href='dashboard.html'">Dashboard</button>
+<button onclick="location.href='./dashboard.html'">Dashboard</button>
 </div>
 
 </div>
@@ -221,12 +221,12 @@ function delSug(i){
 }
 loadSuggestions();
 
-/// ================= LOGOUT (FIXED) =================
+/// ================= LOGOUT (FIXED - NO 404) =================
 function logout(){
     sessionStorage.removeItem("loggedIn");
 
-    // always safe redirect
-    window.location.href = "login.html";
+    // ALWAYS SAFE REDIRECT
+    window.location.href = "./login.html";
 }
 
 </script>
