@@ -1,199 +1,250 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mini ERP System</title>
+<title>Mini ERP System</title>
 
-  <style>
-    body { font-family: Arial; margin: 20px; background: #f5f5f5; }
-    h2 { text-align: center; }
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+}
 
-    .hidden { display: none; }
+/* COMMON */
+.hidden { display: none; }
 
-    .container { text-align: center; }
+h1, h2 { text-align: center; }
 
-    .academics {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      margin-top: 20px;
-    }
+/* LOGIN */
+#loginPage {
+    text-align: center;
+    margin-top: 100px;
+}
 
-    .card {
-      background: white;
-      padding: 15px;
-      width: 30%;
-      border-radius: 10px;
-      box-shadow: 2px 2px 10px #ccc;
-    }
+/* DASHBOARD */
+.overlay {
+    padding: 20px;
+    color: white;
+}
 
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px; text-align: center; }
-    th { background: #007bff; color: white; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
 
-    button { margin-top: 10px; }
-  </style>
+.card {
+    background: rgba(255,255,255,0.2);
+    padding: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
+/* ADMIN */
+.box {
+    background: white;
+    padding: 15px;
+    margin: 10px auto;
+    width: 60%;
+}
+
+/* ACADEMICS */
+.flex {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.card2 {
+    background: white;
+    padding: 15px;
+    width: 30%;
+}
+
+</style>
 </head>
+
 <body>
 
 <!-- 🔐 LOGIN -->
-<div id="loginPage" class="container">
+<div id="loginPage">
   <h2>Login</h2>
   <input id="username" placeholder="Username"><br><br>
   <input id="password" type="password" placeholder="Password"><br><br>
   <button onclick="login()">Login</button>
 </div>
 
-<!-- 🧑‍💼 ADMIN PANEL -->
-<div id="adminPage" class="hidden">
+<!-- 🎓 DASHBOARD -->
+<div id="dashboardPage" class="hidden overlay">
+  <h1>WELCOME STUDENT</h1>
 
-  <h2>Admin Console</h2>
+  <div class="grid">
+    <div class="card" onclick="openAcademics()">ACADEMICS</div>
+    <div class="card" onclick="openAdmin()">ADMIN</div>
+    <div class="card">WELLNESS</div>
+    <div class="card">FAQS</div>
+    <div class="card">EMERGENCY</div>
+  </div>
 
-  <h3>Subjects</h3>
-  <input id="subjects"><br>
-  <button onclick="saveSubjects()">Save</button>
+  <h3>📢 Notice</h3>
+  <p id="noticeBox"></p>
 
-  <h3>Attendance (%)</h3>
-  <input id="attendance" type="number"><br>
-  <button onclick="saveAttendance()">Save</button>
-
-  <h3>Timetable</h3>
-  <select id="day">
-    <option>Monday</option>
-    <option>Tuesday</option>
-    <option>Wednesday</option>
-    <option>Thursday</option>
-    <option>Friday</option>
-  </select>
-  <input id="daySubjects" placeholder="Subjects"><br>
-  <button onclick="saveTimetable()">Add / Update</button>
-
-  <h3>Notices</h3>
-  <textarea id="noticeText"></textarea><br>
-  <button onclick="saveNotice()">Post Notice</button>
-
-  <br><br>
   <button onclick="logout()">Logout</button>
-
 </div>
 
-<!-- 🎓 STUDENT DASHBOARD -->
-<div id="studentPage" class="hidden">
+<!-- 🎓 ACADEMICS -->
+<div id="academicsPage" class="hidden">
+  <h2>Academics</h2>
 
-  <h2>Student Dashboard</h2>
-
-  <div class="academics">
-
-    <div class="card">
+  <div class="flex">
+    <div class="card2">
       <h3>Subjects</h3>
       <ul id="subjectsList"></ul>
     </div>
 
-    <div class="card">
+    <div class="card2">
       <h3>Attendance</h3>
-      <h1 id="attDisplay"></h1>
+      <h1 id="attendance"></h1>
     </div>
 
-    <div class="card">
+    <div class="card2">
       <h3>Timetable</h3>
-      <table id="timeTable">
+      <table id="timetable">
         <tr><th>Day</th><th>Subjects</th></tr>
       </table>
     </div>
-
   </div>
 
-  <div class="card" style="width:60%; margin:20px auto;">
-    <h3>Notices</h3>
-    <p id="noticeDisplay"></p>
+  <button onclick="backDashboard()">Back</button>
+</div>
+
+<!-- 🧑‍💼 ADMIN -->
+<div id="adminPage" class="hidden">
+  <h2>Admin Console</h2>
+
+  <div class="box">
+    <input id="subjects" placeholder="Subjects"><br>
+    <button onclick="saveSubjects()">Save Subjects</button>
   </div>
 
-  <center>
-    <button onclick="logout()">Logout</button>
-  </center>
+  <div class="box">
+    <input id="attendanceInput" type="number"><br>
+    <button onclick="saveAttendance()">Save Attendance</button>
+  </div>
 
+  <div class="box">
+    <select id="day">
+      <option>Monday</option>
+      <option>Tuesday</option>
+      <option>Wednesday</option>
+    </select>
+    <input id="daySub"><br>
+    <button onclick="saveTT()">Save Timetable</button>
+  </div>
+
+  <div class="box">
+    <textarea id="notice"></textarea><br>
+    <button onclick="saveNotice()">Post Notice</button>
+  </div>
+
+  <button onclick="backDashboard()">Back</button>
 </div>
 
 <script>
 
-// 🔐 LOGIN
+// LOGIN
 function login(){
-  let user = username.value;
-  let pass = password.value;
+  let u = username.value;
+  let p = password.value;
 
-  if(user === "admin" && pass === "admin123"){
-    loginPage.classList.add("hidden");
-    adminPage.classList.remove("hidden");
+  if(u==="admin" && p==="admin123"){
+    sessionStorage.setItem("role","admin");
+    showDashboard();
   }
-  else if(user === "student" && pass === "123"){
-    loginPage.classList.add("hidden");
-    studentPage.classList.remove("hidden");
-    loadStudentData();
+  else if(u==="student" && p==="123"){
+    sessionStorage.setItem("role","student");
+    showDashboard();
   }
-  else{
-    alert("Invalid login");
-  }
+  else alert("Invalid");
 }
 
-// 🔄 LOGOUT
+// SHOW DASHBOARD
+function showDashboard(){
+  loginPage.classList.add("hidden");
+  dashboardPage.classList.remove("hidden");
+  loadNotice();
+}
+
+// NAVIGATION
+function openAcademics(){
+  dashboardPage.classList.add("hidden");
+  academicsPage.classList.remove("hidden");
+  loadAcademics();
+}
+
+function openAdmin(){
+  if(sessionStorage.getItem("role")!=="admin"){
+    alert("Only admin allowed");
+    return;
+  }
+  dashboardPage.classList.add("hidden");
+  adminPage.classList.remove("hidden");
+}
+
+function backDashboard(){
+  academicsPage.classList.add("hidden");
+  adminPage.classList.add("hidden");
+  dashboardPage.classList.remove("hidden");
+}
+
+// LOGOUT
 function logout(){
+  sessionStorage.clear();
   location.reload();
 }
 
-// 🧑‍💼 ADMIN FUNCTIONS
+// ADMIN SAVE
 function saveSubjects(){
-  let subs = subjects.value.split(",");
-  localStorage.setItem("subjects", JSON.stringify(subs));
-  alert("Saved");
+  localStorage.setItem("subjects", JSON.stringify(subjects.value.split(",")));
 }
 
 function saveAttendance(){
-  localStorage.setItem("attendance", attendance.value);
-  alert("Saved");
+  localStorage.setItem("attendance", attendanceInput.value);
 }
 
-function saveTimetable(){
+function saveTT(){
   let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-  tt[day.value] = daySubjects.value;
+  tt[day.value] = daySub.value;
   localStorage.setItem("timetable", JSON.stringify(tt));
-  alert("Saved");
 }
 
 function saveNotice(){
-  localStorage.setItem("notice", noticeText.value);
-  alert("Notice Posted");
+  localStorage.setItem("notice", notice.value);
 }
 
-// 🎓 STUDENT VIEW
-function loadStudentData(){
-
-  // Subjects
-  let subs = JSON.parse(localStorage.getItem("subjects")) || [];
-  let ul = document.getElementById("subjectsList");
-  ul.innerHTML = "";
+// LOAD DATA
+function loadAcademics(){
+  let subs = JSON.parse(localStorage.getItem("subjects"))||[];
+  subjectsList.innerHTML="";
   subs.forEach(s=>{
-    let li = document.createElement("li");
-    li.innerText = s;
-    ul.appendChild(li);
+    let li=document.createElement("li");
+    li.innerText=s;
+    subjectsList.appendChild(li);
   });
 
-  // Attendance
-  attDisplay.innerText =
-    (localStorage.getItem("attendance") || "0") + "%";
+  attendance.innerText=(localStorage.getItem("attendance")||0)+"%";
 
-  // Timetable
-  let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-  let table = document.getElementById("timeTable");
-
+  let tt=JSON.parse(localStorage.getItem("timetable"))||{};
+  timetable.innerHTML="<tr><th>Day</th><th>Subjects</th></tr>";
   for(let d in tt){
-    let tr = document.createElement("tr");
-    tr.innerHTML = `<td>${d}</td><td>${tt[d]}</td>`;
-    table.appendChild(tr);
+    let tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d}</td><td>${tt[d]}</td>`;
+    timetable.appendChild(tr);
   }
+}
 
-  // Notice
-  noticeDisplay.innerText =
-    localStorage.getItem("notice") || "No Notices";
+function loadNotice(){
+  noticeBox.innerText = localStorage.getItem("notice") || "No Notice";
 }
 
 </script>
