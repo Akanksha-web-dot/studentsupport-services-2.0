@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini ERP System</title>
+
+  <style>
+    body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+    h2 { text-align: center; }
+
+    .hidden { display: none; }
+
+    .container { text-align: center; }
+
+    .academics {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      width: 30%;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px #ccc;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px; text-align: center; }
+    th { background: #007bff; color: white; }
+
+    button { margin-top: 10px; }
+  </style>
+
+</head>
+<body>
+
+<!-- 🔐 LOGIN -->
+<div id="loginPage" class="container">
+  <h2>Login</h2>
+  <input id="username" placeholder="Username"><br><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- 🧑‍💼 ADMIN PANEL -->
+<div id="adminPage" class="hidden">
+
+  <h2>Admin Console</h2>
+
+  <h3>Subjects</h3>
+  <input id="subjects"><br>
+  <button onclick="saveSubjects()">Save</button>
+
+  <h3>Attendance (%)</h3>
+  <input id="attendance" type="number"><br>
+  <button onclick="saveAttendance()">Save</button>
+
+  <h3>Timetable</h3>
+  <select id="day">
+    <option>Monday</option>
+    <option>Tuesday</option>
+    <option>Wednesday</option>
+    <option>Thursday</option>
+    <option>Friday</option>
+  </select>
+  <input id="daySubjects" placeholder="Subjects"><br>
+  <button onclick="saveTimetable()">Add / Update</button>
+
+  <h3>Notices</h3>
+  <textarea id="noticeText"></textarea><br>
+  <button onclick="saveNotice()">Post Notice</button>
+
+  <br><br>
+  <button onclick="logout()">Logout</button>
+
+</div>
+
+<!-- 🎓 STUDENT DASHBOARD -->
+<div id="studentPage" class="hidden">
+
+  <h2>Student Dashboard</h2>
+
+  <div class="academics">
+
+    <div class="card">
+      <h3>Subjects</h3>
+      <ul id="subjectsList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Attendance</h3>
+      <h1 id="attDisplay"></h1>
+    </div>
+
+    <div class="card">
+      <h3>Timetable</h3>
+      <table id="timeTable">
+        <tr><th>Day</th><th>Subjects</th></tr>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="card" style="width:60%; margin:20px auto;">
+    <h3>Notices</h3>
+    <p id="noticeDisplay"></p>
+  </div>
+
+  <center>
+    <button onclick="logout()">Logout</button>
+  </center>
+
+</div>
+
+<script>
+
+// 🔐 LOGIN
+function login(){
+  let user = username.value;
+  let pass = password.value;
+
+  if(user === "admin" && pass === "admin123"){
+    loginPage.classList.add("hidden");
+    adminPage.classList.remove("hidden");
+  }
+  else if(user === "student" && pass === "123"){
+    loginPage.classList.add("hidden");
+    studentPage.classList.remove("hidden");
+    loadStudentData();
+  }
+  else{
+    alert("Invalid login");
+  }
+}
+
+// 🔄 LOGOUT
+function logout(){
+  location.reload();
+}
+
+// 🧑‍💼 ADMIN FUNCTIONS
+function saveSubjects(){
+  let subs = subjects.value.split(",");
+  localStorage.setItem("subjects", JSON.stringify(subs));
+  alert("Saved");
+}
+
+function saveAttendance(){
+  localStorage.setItem("attendance", attendance.value);
+  alert("Saved");
+}
+
+function saveTimetable(){
+  let tt = JSON.parse(localStorage.getItem("timetable")) || {};
+  tt[day.value] = daySubjects.value;
+  localStorage.setItem("timetable", JSON.stringify(tt));
+  alert("Saved");
+}
+
+function saveNotice(){
+  localStorage.setItem("notice", noticeText.value);
+  alert("Notice Posted");
+}
+
+// 🎓 STUDENT VIEW
+function loadStudentData(){
+
+  // Subjects
+  let subs = JSON.parse(localStorage.getItem("subjects")) || [];
+  let ul = document.getElementById("subjectsList");
+  ul.innerHTML = "";
+  subs.forEach(s=>{
+    let li = document.createElement("li");
+    li.innerText = s;
+    ul.appendChild(li);
+  });
+
+  // Attendance
+  attDisplay.innerText =
+    (localStorage.getItem("attendance") || "0") + "%";
+
+  // Timetable
+  let tt = JSON.parse(localStorage.getItem("timetable")) || {};
+  let table = document.getElementById("timeTable");
+
+  for(let d in tt){
+    let tr = document.createElement("tr");
+    tr.innerHTML = `<td>${d}</td><td>${tt[d]}</td>`;
+    table.appendChild(tr);
+  }
+
+  // Notice
+  noticeDisplay.innerText =
+    localStorage.getItem("notice") || "No Notices";
+}
+
+</script>
+
+</body>
+</html>
