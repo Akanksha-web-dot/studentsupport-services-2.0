@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: url("ADMIN BLOCK (1).webp") no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+}
+
+.overlay {
+    background: rgba(0,0,0,0.78);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.sub {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ddd;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.15);
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.card:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding: 10px;
+    background: rgba(0,0,0,0.7);
+}
+
+.logout {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="overlay">
+
+<button class="logout" onclick="logout()">Logout</button>
+
+<h1>WELCOME STUDENT</h1>
+<div class="sub">Student Support Services Dashboard</div>
+
+<div class="grid">
+
+    <!-- WELLNESS -->
+    <div class="card" onclick="goPage('wellness.html')">
+        <h3>WELLNESS</h3>
+        <p>Mental & Physical Health</p>
+    </div>
+
+    <!-- ACADEMICS (UPDATED LINK) -->
+    <div class="card" onclick="goPage('academics.html')">
+        <h3>ACADEMICS</h3>
+        <p>Attendance, Subjects & Timetable</p>
+    </div>
+
+    <!-- FAQS -->
+    <div class="card" onclick="goPage('faqs.html')">
+        <h3>FAQS</h3>
+        <p>Student Queries</p>
+    </div>
+
+    <!-- EMERGENCY -->
+    <div class="card" onclick="goPage('emergency.html')">
+        <h3>EMERGENCY</h3>
+        <p>Helpline Contacts</p>
+    </div>
+
+    <!-- ADMIN CONSOLE (UPDATED LINK) -->
+    <div class="card" onclick="goPage('admin.html')">
+        <h3>ADMIN CONSOLE</h3>
+        <p>Manage Academics & Notices</p>
+    </div>
+
+</div>
+
+<!-- 🔔 NOTICE PREVIEW (NEW FEATURE) -->
+<div style="margin-top:30px; text-align:center;">
+    <h3>📢 Latest Notice</h3>
+    <p id="noticeBox">No notices available</p>
+</div>
+
+<footer>
+ALLIANCE UNIVERSITY
+</footer>
+
+</div>
+
+<script>
+
+// 🔐 LOGIN PROTECTION (UPDATED)
+if (!sessionStorage.getItem("loggedIn")) {
+    window.location.href = "login.html";
+}
+
+// 🔗 NAVIGATION FUNCTION
+function goPage(page){
+    window.location.href = page;
+}
+
+// 🔓 LOGOUT
+function logout(){
+    sessionStorage.clear();
+    window.location.href = "login.html";
+}
+
+// 📢 LOAD NOTICE (LINKED WITH ADMIN)
+let notice = localStorage.getItem("notice");
+if(notice){
+    document.getElementById("noticeBox").innerText = notice;
+}
+
+</script>
+
+</body>
+</html>
