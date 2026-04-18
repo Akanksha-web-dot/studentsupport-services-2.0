@@ -1,250 +1,158 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Mini ERP System</title>
+<title>Admin Console</title>
 
 <style>
 body {
-    margin: 0;
     font-family: Arial;
-    background: linear-gradient(to right, #4facfe, #00f2fe);
+    margin: 0;
+    background: #f5f5f5;
 }
 
-/* COMMON */
-.hidden { display: none; }
-
-h1, h2 { text-align: center; }
-
 /* LOGIN */
-#loginPage {
+#loginBox {
     text-align: center;
     margin-top: 100px;
 }
 
-/* DASHBOARD */
-.overlay {
+/* ADMIN PANEL */
+#adminPanel {
+    display: none;
     padding: 20px;
-    color: white;
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-}
-
-.card {
-    background: rgba(255,255,255,0.2);
-    padding: 20px;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-/* ADMIN */
 .box {
     background: white;
     padding: 15px;
-    margin: 10px auto;
-    width: 60%;
+    margin: 15px auto;
+    width: 50%;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px #ccc;
 }
 
-/* ACADEMICS */
-.flex {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+h2 {
+    text-align: center;
 }
 
-.card2 {
-    background: white;
-    padding: 15px;
-    width: 30%;
+button {
+    margin-top: 10px;
 }
-
 </style>
+
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN -->
-<div id="loginPage">
-  <h2>Login</h2>
-  <input id="username" placeholder="Username"><br><br>
-  <input id="password" type="password" placeholder="Password"><br><br>
-  <button onclick="login()">Login</button>
+<!-- 🔐 ADMIN LOGIN -->
+<div id="loginBox">
+  <h2>Admin Login</h2>
+  <input id="adminUser" placeholder="Username"><br><br>
+  <input id="adminPass" type="password" placeholder="Password"><br><br>
+  <button onclick="adminLogin()">Login</button>
 </div>
 
-<!-- 🎓 DASHBOARD -->
-<div id="dashboardPage" class="hidden overlay">
-  <h1>WELCOME STUDENT</h1>
+<!-- 🧑‍💼 ADMIN PANEL -->
+<div id="adminPanel">
 
-  <div class="grid">
-    <div class="card" onclick="openAcademics()">ACADEMICS</div>
-    <div class="card" onclick="openAdmin()">ADMIN</div>
-    <div class="card">WELLNESS</div>
-    <div class="card">FAQS</div>
-    <div class="card">EMERGENCY</div>
-  </div>
+<h2>Admin Console</h2>
 
-  <h3>📢 Notice</h3>
-  <p id="noticeBox"></p>
-
-  <button onclick="logout()">Logout</button>
+<div class="box">
+  <h3>Subjects</h3>
+  <input id="subjects" placeholder="Maths,Physics"><br>
+  <button onclick="saveSubjects()">Save</button>
 </div>
 
-<!-- 🎓 ACADEMICS -->
-<div id="academicsPage" class="hidden">
-  <h2>Academics</h2>
-
-  <div class="flex">
-    <div class="card2">
-      <h3>Subjects</h3>
-      <ul id="subjectsList"></ul>
-    </div>
-
-    <div class="card2">
-      <h3>Attendance</h3>
-      <h1 id="attendance"></h1>
-    </div>
-
-    <div class="card2">
-      <h3>Timetable</h3>
-      <table id="timetable">
-        <tr><th>Day</th><th>Subjects</th></tr>
-      </table>
-    </div>
-  </div>
-
-  <button onclick="backDashboard()">Back</button>
+<div class="box">
+  <h3>Attendance (%)</h3>
+  <input id="attendance" type="number"><br>
+  <button onclick="saveAttendance()">Save</button>
 </div>
 
-<!-- 🧑‍💼 ADMIN -->
-<div id="adminPage" class="hidden">
-  <h2>Admin Console</h2>
+<div class="box">
+  <h3>Timetable</h3>
+  <select id="day">
+    <option>Monday</option>
+    <option>Tuesday</option>
+    <option>Wednesday</option>
+    <option>Thursday</option>
+    <option>Friday</option>
+  </select>
+  <input id="daySub" placeholder="Subjects"><br>
+  <button onclick="saveTT()">Add / Update</button>
+</div>
 
-  <div class="box">
-    <input id="subjects" placeholder="Subjects"><br>
-    <button onclick="saveSubjects()">Save Subjects</button>
-  </div>
+<div class="box">
+  <h3>Notice</h3>
+  <textarea id="notice" placeholder="Enter notice"></textarea><br>
+  <button onclick="saveNotice()">Post</button>
+</div>
 
-  <div class="box">
-    <input id="attendanceInput" type="number"><br>
-    <button onclick="saveAttendance()">Save Attendance</button>
-  </div>
+<center>
+<button onclick="goDashboard()">Back to Dashboard</button>
+<button onclick="logout()">Logout</button>
+</center>
 
-  <div class="box">
-    <select id="day">
-      <option>Monday</option>
-      <option>Tuesday</option>
-      <option>Wednesday</option>
-    </select>
-    <input id="daySub"><br>
-    <button onclick="saveTT()">Save Timetable</button>
-  </div>
-
-  <div class="box">
-    <textarea id="notice"></textarea><br>
-    <button onclick="saveNotice()">Post Notice</button>
-  </div>
-
-  <button onclick="backDashboard()">Back</button>
 </div>
 
 <script>
 
-// LOGIN
-function login(){
-  let u = username.value;
-  let p = password.value;
+// 🔐 AUTO CHECK (if already admin)
+if(sessionStorage.getItem("role")==="admin"){
+  showAdmin();
+}
+
+// 🔐 ADMIN LOGIN
+function adminLogin(){
+  let u = adminUser.value;
+  let p = adminPass.value;
 
   if(u==="admin" && p==="admin123"){
     sessionStorage.setItem("role","admin");
-    showDashboard();
+    showAdmin();
+  } else {
+    alert("Invalid Admin Login");
   }
-  else if(u==="student" && p==="123"){
-    sessionStorage.setItem("role","student");
-    showDashboard();
-  }
-  else alert("Invalid");
 }
 
-// SHOW DASHBOARD
-function showDashboard(){
-  loginPage.classList.add("hidden");
-  dashboardPage.classList.remove("hidden");
-  loadNotice();
+// SHOW PANEL
+function showAdmin(){
+  loginBox.style.display = "none";
+  adminPanel.style.display = "block";
 }
 
-// NAVIGATION
-function openAcademics(){
-  dashboardPage.classList.add("hidden");
-  academicsPage.classList.remove("hidden");
-  loadAcademics();
-}
-
-function openAdmin(){
-  if(sessionStorage.getItem("role")!=="admin"){
-    alert("Only admin allowed");
-    return;
-  }
-  dashboardPage.classList.add("hidden");
-  adminPage.classList.remove("hidden");
-}
-
-function backDashboard(){
-  academicsPage.classList.add("hidden");
-  adminPage.classList.add("hidden");
-  dashboardPage.classList.remove("hidden");
-}
-
-// LOGOUT
-function logout(){
-  sessionStorage.clear();
-  location.reload();
-}
-
-// ADMIN SAVE
+// SAVE DATA
 function saveSubjects(){
   localStorage.setItem("subjects", JSON.stringify(subjects.value.split(",")));
+  alert("Subjects Saved");
 }
 
 function saveAttendance(){
-  localStorage.setItem("attendance", attendanceInput.value);
+  localStorage.setItem("attendance", attendance.value);
+  alert("Attendance Saved");
 }
 
 function saveTT(){
   let tt = JSON.parse(localStorage.getItem("timetable")) || {};
   tt[day.value] = daySub.value;
   localStorage.setItem("timetable", JSON.stringify(tt));
+  alert("Timetable Updated");
 }
 
 function saveNotice(){
   localStorage.setItem("notice", notice.value);
+  alert("Notice Posted");
 }
 
-// LOAD DATA
-function loadAcademics(){
-  let subs = JSON.parse(localStorage.getItem("subjects"))||[];
-  subjectsList.innerHTML="";
-  subs.forEach(s=>{
-    let li=document.createElement("li");
-    li.innerText=s;
-    subjectsList.appendChild(li);
-  });
-
-  attendance.innerText=(localStorage.getItem("attendance")||0)+"%";
-
-  let tt=JSON.parse(localStorage.getItem("timetable"))||{};
-  timetable.innerHTML="<tr><th>Day</th><th>Subjects</th></tr>";
-  for(let d in tt){
-    let tr=document.createElement("tr");
-    tr.innerHTML=`<td>${d}</td><td>${tt[d]}</td>`;
-    timetable.appendChild(tr);
-  }
+// NAVIGATION
+function goDashboard(){
+  window.location.href = "dashboard.html";
 }
 
-function loadNotice(){
-  noticeBox.innerText = localStorage.getItem("notice") || "No Notice";
+// LOGOUT
+function logout(){
+  sessionStorage.clear();
+  window.location.href = "login.html";
 }
 
 </script>
