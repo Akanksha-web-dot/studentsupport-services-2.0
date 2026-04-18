@@ -18,10 +18,6 @@ body {
     padding: 20px;
 }
 
-h2 {
-    text-align: center;
-}
-
 .box {
     background: rgba(255,255,255,0.15);
     padding: 20px;
@@ -29,20 +25,9 @@ h2 {
     width: 50%;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 2px 2px 10px #000;
 }
 
-button {
-    margin-top: 10px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    opacity: 0.8;
-}
+h2 { text-align: center; }
 </style>
 
 </head>
@@ -51,123 +36,132 @@ button:hover {
 
 <div class="overlay">
 
+<!-- 🔐 LOGIN BOX -->
+<div id="loginBox">
+  <h2>Admin Login</h2>
+  <input id="user" placeholder="Username"><br><br>
+  <input id="pass" type="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- 🧑‍💼 ADMIN PANEL -->
+<div id="adminPanel" style="display:none;">
+
 <h2>Admin Console</h2>
 
-<script>
-// 🔐 ADMIN PROTECTION
-if(sessionStorage.getItem("role") !== "admin"){
-    alert("Access Denied");
-    window.location.href = "dashboard.html";
-}
-</script>
-
-<!-- SUBJECTS -->
 <div class="box">
   <h3>Subjects</h3>
-  <input id="subjects" placeholder="Maths,Physics"><br>
+  <input id="subjects"><br>
   <button onclick="saveSubjects()">Save</button>
 </div>
 
-<!-- ATTENDANCE -->
 <div class="box">
   <h3>Attendance</h3>
-  <input id="attendance" type="number"><br>
+  <input id="attendance"><br>
   <button onclick="saveAttendance()">Save</button>
 </div>
 
-<!-- TIMETABLE -->
 <div class="box">
   <h3>Timetable</h3>
   <select id="day">
     <option>Monday</option>
     <option>Tuesday</option>
     <option>Wednesday</option>
-    <option>Thursday</option>
-    <option>Friday</option>
   </select>
-  <input id="daySub" placeholder="Subjects"><br>
-  <button onclick="saveTimetable()">Save</button>
+  <input id="daySub"><br>
+  <button onclick="saveTT()">Save</button>
 </div>
 
-<!-- NOTICE -->
 <div class="box">
   <h3>Notice</h3>
-  <textarea id="notice" placeholder="Enter notice"></textarea><br>
+  <textarea id="notice"></textarea><br>
   <button onclick="saveNotice()">Post</button>
 </div>
 
-<!-- 💬 SUGGESTIONS FROM STUDENTS -->
 <div class="box">
   <h3>Student Suggestions</h3>
-  <ul id="suggestionList"></ul>
+  <ul id="list"></ul>
 </div>
 
 <center>
-<button onclick="goDashboard()">Back to Dashboard</button>
+<button onclick="goBack()">Back</button>
 <button onclick="logout()">Logout</button>
 </center>
 
 </div>
 
+</div>
+
 <script>
 
-// 📊 SAVE FUNCTIONS
-function saveSubjects(){
-  let subs = document.getElementById("subjects").value.split(",");
-  localStorage.setItem("subjects", JSON.stringify(subs));
-  alert("Subjects Saved");
+// ✅ AUTO LOGIN CHECK
+if(sessionStorage.getItem("role") === "admin"){
+  showAdmin();
 }
 
-function saveAttendance(){
-  localStorage.setItem("attendance", document.getElementById("attendance").value);
-  alert("Attendance Saved");
-}
+// 🔐 LOGIN FUNCTION
+function login(){
+  let u = user.value;
+  let p = pass.value;
 
-function saveTimetable(){
-  let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-  let day = document.getElementById("day").value;
-  let sub = document.getElementById("daySub").value;
-
-  tt[day] = sub;
-  localStorage.setItem("timetable", JSON.stringify(tt));
-  alert("Timetable Saved");
-}
-
-function saveNotice(){
-  localStorage.setItem("notice", document.getElementById("notice").value);
-  alert("Notice Posted");
-}
-
-// 💬 LOAD SUGGESTIONS (LINKED WITH ACADEMICS)
-function loadSuggestions(){
-  let list = document.getElementById("suggestionList");
-  let suggestions = JSON.parse(localStorage.getItem("suggestions")) || [];
-
-  list.innerHTML = "";
-
-  if(suggestions.length === 0){
-    list.innerHTML = "<li>No Suggestions Yet</li>";
+  if(u==="admin" && p==="admin123"){
+    sessionStorage.setItem("role","admin");
+    sessionStorage.setItem("loggedIn","true");
+    showAdmin();
   } else {
-    suggestions.forEach((s, index) => {
-      let li = document.createElement("li");
-      li.innerText = s;
-      list.appendChild(li);
-    });
+    alert("Invalid Login");
   }
 }
 
-// CALL ON LOAD
-loadSuggestions();
-
-// 🔗 NAVIGATION
-function goDashboard(){
-  window.location.href = "dashboard.html";
+// SHOW ADMIN PANEL
+function showAdmin(){
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminPanel").style.display = "block";
+  loadSuggestions();
 }
 
 // 🔓 LOGOUT
 function logout(){
   sessionStorage.clear();
-  window.location.href = "login.html";
+  location.reload(); // 🔥 IMPORTANT FIX
+}
+
+// SAVE FUNCTIONS
+function saveSubjects(){
+  localStorage.setItem("subjects", JSON.stringify(subjects.value.split(",")));
+}
+function saveAttendance(){
+  localStorage.setItem("attendance", attendance.value);
+}
+function saveTT(){
+  let tt = JSON.parse(localStorage.getItem("timetable")) || {};
+  tt[day.value] = daySub.value;
+  localStorage.setItem("timetable", JSON.stringify(tt));
+}
+function saveNotice(){
+  localStorage.setItem("notice", notice.value);
+}
+
+// LOAD SUGGESTIONS
+function loadSuggestions(){
+  let arr = JSON.parse(localStorage.getItem("suggestions")) || [];
+  let ul = document.getElementById("list");
+  ul.innerHTML = "";
+
+  if(arr.length === 0){
+    ul.innerHTML = "<li>No Suggestions</li>";
+  } else {
+    arr.forEach(s=>{
+      let li=document.createElement("li");
+      li.innerText=s;
+      ul.appendChild(li);
+    });
+  }
+}
+
+// NAVIGATION
+function goBack(){
+  window.location.href="dashboard.html";
 }
 
 </script>
