@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Academics</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      margin: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .academics {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      width: 30%;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px #ccc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+  </style>
+
+</head>
+<body>
+
+<h2>Academics Module</h2>
+
+<div class="academics">
+
+  <!-- SUBJECTS -->
+  <div class="card">
+    <h3>Subjects</h3>
+    <ul id="subjectsList"></ul>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="card">
+    <h3>Attendance</h3>
+    <h1 id="attendance" style="text-align:center;"></h1>
+  </div>
+
+  <!-- TIMETABLE -->
+  <div class="card">
+    <h3>Timetable</h3>
+    <table border="1" id="timetableTable">
+      <tr>
+        <th>Day</th>
+        <th>Subjects</th>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ===== SUBJECTS =====
+let subjects = JSON.parse(localStorage.getItem("subjects")) || [];
+let ul = document.getElementById("subjectsList");
+
+if(subjects.length > 0){
+  subjects.forEach(sub => {
+    let li = document.createElement("li");
+    li.innerText = sub;
+    ul.appendChild(li);
+  });
+}else{
+  ul.innerHTML = "<li>No Subjects Available</li>";
+}
+
+// ===== ATTENDANCE =====
+let attendance = localStorage.getItem("attendance");
+document.getElementById("attendance").innerText =
+  attendance ? attendance + "%" : "No Data";
+
+// ===== TIMETABLE =====
+let timetable = JSON.parse(localStorage.getItem("timetable")) || {};
+let table = document.getElementById("timetableTable");
+
+if(Object.keys(timetable).length > 0){
+  for(let day in timetable){
+    let tr = document.createElement("tr");
+
+    let td1 = document.createElement("td");
+    td1.innerText = day;
+
+    let td2 = document.createElement("td");
+    td2.innerText = timetable[day];
+
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    table.appendChild(tr);
+  }
+}else{
+  let tr = document.createElement("tr");
+  let td = document.createElement("td");
+  td.colSpan = 2;
+  td.innerText = "No Timetable Available";
+  tr.appendChild(td);
+  table.appendChild(tr);
+}
+</script>
+
+</body>
+</html>
