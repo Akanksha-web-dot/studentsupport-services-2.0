@@ -12,22 +12,14 @@ body {
     color: white;
 }
 
-/* OVERLAY (IMPORTANT for readability) */
 .overlay {
     background: rgba(0,0,0,0.78);
     min-height: 100vh;
     padding: 20px;
 }
 
-/* LOGIN */
-#loginBox {
+h2 {
     text-align: center;
-    margin-top: 100px;
-}
-
-/* ADMIN PANEL */
-#adminPanel {
-    display: none;
 }
 
 .box {
@@ -40,15 +32,11 @@ body {
     box-shadow: 2px 2px 10px #000;
 }
 
-h2 {
-    text-align: center;
-}
-
 button {
     margin-top: 10px;
     padding: 8px 12px;
-    border: none;
     border-radius: 5px;
+    border: none;
     cursor: pointer;
 }
 
@@ -63,31 +51,31 @@ button:hover {
 
 <div class="overlay">
 
-<!-- 🔐 ADMIN LOGIN -->
-<div id="loginBox">
-  <h2>Admin Login</h2>
-  <input id="adminUser" placeholder="Username"><br><br>
-  <input id="adminPass" type="password" placeholder="Password"><br><br>
-  <button onclick="adminLogin()">Login</button>
-</div>
-
-<!-- 🧑‍💼 ADMIN PANEL -->
-<div id="adminPanel">
-
 <h2>Admin Console</h2>
 
+<script>
+// 🔐 ADMIN PROTECTION
+if(sessionStorage.getItem("role") !== "admin"){
+    alert("Access Denied");
+    window.location.href = "dashboard.html";
+}
+</script>
+
+<!-- SUBJECTS -->
 <div class="box">
   <h3>Subjects</h3>
   <input id="subjects" placeholder="Maths,Physics"><br>
   <button onclick="saveSubjects()">Save</button>
 </div>
 
+<!-- ATTENDANCE -->
 <div class="box">
-  <h3>Attendance (%)</h3>
+  <h3>Attendance</h3>
   <input id="attendance" type="number"><br>
   <button onclick="saveAttendance()">Save</button>
 </div>
 
+<!-- TIMETABLE -->
 <div class="box">
   <h3>Timetable</h3>
   <select id="day">
@@ -98,13 +86,20 @@ button:hover {
     <option>Friday</option>
   </select>
   <input id="daySub" placeholder="Subjects"><br>
-  <button onclick="saveTT()">Add / Update</button>
+  <button onclick="saveTimetable()">Save</button>
 </div>
 
+<!-- NOTICE -->
 <div class="box">
   <h3>Notice</h3>
   <textarea id="notice" placeholder="Enter notice"></textarea><br>
   <button onclick="saveNotice()">Post</button>
+</div>
+
+<!-- 💬 SUGGESTIONS FROM STUDENTS -->
+<div class="box">
+  <h3>Student Suggestions</h3>
+  <ul id="suggestionList"></ul>
 </div>
 
 <center>
@@ -114,63 +109,62 @@ button:hover {
 
 </div>
 
-</div>
-
 <script>
 
-// AUTO LOGIN CHECK
-if(sessionStorage.getItem("role")==="admin"){
-  showAdmin();
-}
-
-// LOGIN
-function adminLogin(){
-  let u = adminUser.value;
-  let p = adminPass.value;
-
-  if(u==="admin" && p==="admin123"){
-    sessionStorage.setItem("role","admin");
-    showAdmin();
-  } else {
-    alert("Invalid Admin Login");
-  }
-}
-
-// SHOW PANEL
-function showAdmin(){
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("adminPanel").style.display = "block";
-}
-
-// SAVE DATA
+// 📊 SAVE FUNCTIONS
 function saveSubjects(){
-  localStorage.setItem("subjects", JSON.stringify(subjects.value.split(",")));
+  let subs = document.getElementById("subjects").value.split(",");
+  localStorage.setItem("subjects", JSON.stringify(subs));
   alert("Subjects Saved");
 }
 
 function saveAttendance(){
-  localStorage.setItem("attendance", attendance.value);
+  localStorage.setItem("attendance", document.getElementById("attendance").value);
   alert("Attendance Saved");
 }
 
-function saveTT(){
+function saveTimetable(){
   let tt = JSON.parse(localStorage.getItem("timetable")) || {};
-  tt[day.value] = daySub.value;
+  let day = document.getElementById("day").value;
+  let sub = document.getElementById("daySub").value;
+
+  tt[day] = sub;
   localStorage.setItem("timetable", JSON.stringify(tt));
-  alert("Timetable Updated");
+  alert("Timetable Saved");
 }
 
 function saveNotice(){
-  localStorage.setItem("notice", notice.value);
+  localStorage.setItem("notice", document.getElementById("notice").value);
   alert("Notice Posted");
 }
 
-// NAVIGATION
+// 💬 LOAD SUGGESTIONS (LINKED WITH ACADEMICS)
+function loadSuggestions(){
+  let list = document.getElementById("suggestionList");
+  let suggestions = JSON.parse(localStorage.getItem("suggestions")) || [];
+
+  list.innerHTML = "";
+
+  if(suggestions.length === 0){
+    list.innerHTML = "<li>No Suggestions Yet</li>";
+  } else {
+    suggestions.forEach((s, index) => {
+      let li = document.createElement("li");
+      li.innerText = s;
+      list.appendChild(li);
+    });
+  }
+}
+
+// CALL ON LOAD
+loadSuggestions();
+
+// 🔗 NAVIGATION
 function goDashboard(){
   window.location.href = "dashboard.html";
 }
 
-// LOGOUT
+// 🔓 LOGOUT
 function logout(){
   sessionStorage.clear();
   window.location.href = "login.html";
