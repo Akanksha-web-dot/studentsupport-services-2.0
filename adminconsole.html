@@ -5,9 +5,18 @@
 
 <style>
 body {
-    font-family: Arial;
     margin: 0;
-    background: #f5f5f5;
+    font-family: Arial;
+    background: url("ADMIN BLOCK (1).webp") no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+}
+
+/* OVERLAY (IMPORTANT for readability) */
+.overlay {
+    background: rgba(0,0,0,0.78);
+    min-height: 100vh;
+    padding: 20px;
 }
 
 /* LOGIN */
@@ -19,16 +28,16 @@ body {
 /* ADMIN PANEL */
 #adminPanel {
     display: none;
-    padding: 20px;
 }
 
 .box {
-    background: white;
-    padding: 15px;
-    margin: 15px auto;
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    margin: 20px auto;
     width: 50%;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px #ccc;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 2px 2px 10px #000;
 }
 
 h2 {
@@ -37,12 +46,22 @@ h2 {
 
 button {
     margin-top: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
 }
 </style>
 
 </head>
 
 <body>
+
+<div class="overlay">
 
 <!-- 🔐 ADMIN LOGIN -->
 <div id="loginBox">
@@ -95,14 +114,16 @@ button {
 
 </div>
 
+</div>
+
 <script>
 
-// 🔐 AUTO CHECK (if already admin)
+// AUTO LOGIN CHECK
 if(sessionStorage.getItem("role")==="admin"){
   showAdmin();
 }
 
-// 🔐 ADMIN LOGIN
+// LOGIN
 function adminLogin(){
   let u = adminUser.value;
   let p = adminPass.value;
@@ -117,8 +138,8 @@ function adminLogin(){
 
 // SHOW PANEL
 function showAdmin(){
-  loginBox.style.display = "none";
-  adminPanel.style.display = "block";
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminPanel").style.display = "block";
 }
 
 // SAVE DATA
