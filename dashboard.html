@@ -107,7 +107,7 @@ footer {
         <p>Helpline Contacts</p>
     </div>
 
-    <!-- ADMIN CONSOLE (CORRECTED) -->
+    <!-- ADMIN CONSOLE -->
     <div class="card" onclick="goPage('adminconsole.html')">
         <h3>ADMIN CONSOLE</h3>
         <p>Manage Academics & Notices</p>
@@ -145,7 +145,7 @@ function logout(){
     window.location.href = "login.html";
 }
 
-// 📢 LOAD NOTICE FROM ADMIN
+// 📢 LOAD NOTICE
 let notice = localStorage.getItem("notice");
 if(notice){
     document.getElementById("noticeBox").innerText = notice;
