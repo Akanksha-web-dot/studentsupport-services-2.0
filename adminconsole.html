@@ -26,7 +26,7 @@ body {
     border-radius: 10px;
 }
 
-input, textarea {
+input {
     width: 95%;
     padding: 8px;
     margin: 5px 0;
@@ -51,10 +51,13 @@ h2 { text-align:center; }
 
 <body>
 
+<!-- ✅ SAFE LOGIN CHECK -->
 <script>
-if(!sessionStorage.getItem("loggedIn")){
-  window.location.href="login.html";
-}
+(function(){
+    if(sessionStorage.getItem("loggedIn") !== "true"){
+        window.location.href = "login.html";
+    }
+})();
 </script>
 
 <div class="overlay">
@@ -83,6 +86,7 @@ if(!sessionStorage.getItem("loggedIn")){
 <input type="text" id="day" placeholder="Day">
 <input type="text" id="sub" placeholder="Subjects">
 <button onclick="addTT()">Add</button>
+
 <table border="1" width="100%" style="color:white;">
 <tr><th>Day</th><th>Subjects</th></tr>
 <tbody id="ttable"></tbody>
@@ -95,6 +99,7 @@ if(!sessionStorage.getItem("loggedIn")){
 <div id="suggestions"></div>
 </div>
 
+<!-- ACTION BUTTONS -->
 <div style="text-align:center;">
 <button onclick="logout()">Logout</button>
 <button onclick="location.href='dashboard.html'">Dashboard</button>
@@ -104,7 +109,7 @@ if(!sessionStorage.getItem("loggedIn")){
 
 <script>
 
-// ================= ATTENDANCE =================
+/// ================= ATTENDANCE =================
 function updateAttendance(){
     let val = document.getElementById("attInput").value;
     localStorage.setItem("attendance", val);
@@ -114,11 +119,11 @@ function updateAttendance(){
 function loadAttendance(){
     let att = localStorage.getItem("attendance");
     document.getElementById("attShow").innerText =
-    "Current Attendance: " + (att ? att+"%" : "No Data");
+    "Current Attendance: " + (att ? att + "%" : "No Data");
 }
 loadAttendance();
 
-// ================= SUBJECTS =================
+/// ================= SUBJECTS =================
 function loadSubjects(){
     let subs = JSON.parse(localStorage.getItem("subjects")) || [];
     let list = document.getElementById("subList");
@@ -133,9 +138,11 @@ function loadSubjects(){
 
 function addSubject(){
     let val = document.getElementById("subInput").value;
-    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
+    if(val.trim()==="") return;
 
+    let subs = JSON.parse(localStorage.getItem("subjects")) || [];
     subs.push(val);
+
     localStorage.setItem("subjects", JSON.stringify(subs));
 
     document.getElementById("subInput").value="";
@@ -150,7 +157,7 @@ function delSub(i){
 }
 loadSubjects();
 
-// ================= TIMETABLE =================
+/// ================= TIMETABLE =================
 function loadTT(){
     let tt = JSON.parse(localStorage.getItem("timetable")) || {};
     let tbody = document.getElementById("ttable");
@@ -158,10 +165,7 @@ function loadTT(){
 
     for(let d in tt){
         let tr=document.createElement("tr");
-        tr.innerHTML = `
-        <td>${d}</td>
-        <td>${tt[d]}</td>
-        `;
+        tr.innerHTML = `<td>${d}</td><td>${tt[d]}</td>`;
         tbody.appendChild(tr);
     }
 }
@@ -169,6 +173,8 @@ function loadTT(){
 function addTT(){
     let day = document.getElementById("day").value;
     let sub = document.getElementById("sub").value;
+
+    if(day.trim()==="" || sub.trim()==="") return;
 
     let tt = JSON.parse(localStorage.getItem("timetable")) || {};
     tt[day] = sub;
@@ -182,12 +188,17 @@ function addTT(){
 }
 loadTT();
 
-// ================= SUGGESTIONS =================
+/// ================= SUGGESTIONS =================
 function loadSuggestions(){
     let data = JSON.parse(localStorage.getItem("suggestions")) || [];
     let box = document.getElementById("suggestions");
 
     box.innerHTML="";
+
+    if(data.length===0){
+        box.innerHTML="<p>No suggestions</p>";
+        return;
+    }
 
     data.forEach((s,i)=>{
         let div=document.createElement("div");
@@ -210,10 +221,12 @@ function delSug(i){
 }
 loadSuggestions();
 
-// ================= LOGOUT =================
+/// ================= LOGOUT (FIXED) =================
 function logout(){
     sessionStorage.removeItem("loggedIn");
-    window.location.href="login.html";
+
+    // always safe redirect
+    window.location.href = "login.html";
 }
 
 </script>
